@@ -7,7 +7,7 @@ var options = {
 
 var pgp = require('pg-promise')(options);
 //var connectionString = 'postgres://localhost:5432/articles';
-var connectionString = 'postgres://postgres:TechAdmin@localhost/articles';
+var connectionString = 'postgres://postgres://ojwxoozqcwgcof:105dfd6f38f00ff5d46a3133ab187e785bca59544478910409abf34db0faa54a@ec2-54-204-45-43.compute-1.amazonaws.com:5432/df62aebt480nve:105dfd6f38f00ff5d46a3133ab187e785bca59544478910409abf34db0faa54a@ec2-54-204-45-43.compute-1.amazonaws.com/df62aebt480nve';
 var db = pgp(connectionString);
 
 function getAllArticle(req, res, next) {
