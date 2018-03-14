@@ -56,8 +56,8 @@ function createArticle(req, res, next) {
 
 
    if(shopUrl && describe && contenType && productData){
-    const query = db.none('INSERT INTO blogList(shopurl, describe, contenType, productData, createdat) values($1, $2, $3, $4, $5)',
-    [shopUrl, describe, contenType, productData, time],
+    const query = db.none('INSERT INTO blogList(shopurl, describe, contenType, productData, resourcePickerOpen, createdat) values($1, $2, $3, $4, $5)',
+    [shopUrl, describe, contenType, productData, 'false', time],
     function(err,result) {
         done();
         if (err) {
