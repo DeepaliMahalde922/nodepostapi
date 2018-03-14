@@ -11,7 +11,7 @@ var connectionString = 'postgres://ojwxoozqcwgcof:105dfd6f38f00ff5d46a3133ab187e
 var db = pgp(connectionString);
 
 function getAllArticle(req, res, next) {
-  db.any('select * from pups')
+  db.any('select * from bloglist')
     .then(function (data) {
       res.status(200)
         .json({
