@@ -1,4 +1,5 @@
 var promise = require('bluebird');
+var moment = require('moment');
 
 var options = {
   // Initialization Options
@@ -27,7 +28,7 @@ function getAllArticle(req, res, next) {
 
 function getSingleArticle(req, res, next) {
   var pupID = parseInt(req.params.id);
-  db.one('select * from pups where id = $1', pupID)
+  db.one('select * from bloglist where id = $1', pupID)
     .then(function (data) {
       res.status(200)
         .json({
@@ -42,20 +43,37 @@ function getSingleArticle(req, res, next) {
 }
 
 function createArticle(req, res, next) {
-  req.body.age = parseInt(req.body.age);
-  db.none('insert into pups(name, breed, age, sex)' +
-      'values(${name}, ${breed}, ${age}, ${sex})',
-    req.body)
-    .then(function () {
-      res.status(200)
-        .json({
-          status: 'success',
-          message: 'Inserted one puppy'
+
+  var body = "";
+	req.on('data', function(chunk) {
+    	body += chunk;
+	});
+	req.on('end', function() {
+        var obj = JSON.parse(body);
+        req.body.age = parseInt(req.body.age);
+        var time = moment();
+        var time_format = time.format('YYYY-MM-DD HH:mm:ss Z');
+        var describe = contenType = productData = shopUrl = '';
+        if(obj.data.describe){ describe = obj.data.describe; }
+        if(obj.data.contenType){ contenType = obj.data.contenType; }
+        if(obj.data.shopUrl){ shopUrl = obj.data.shopUrl; }
+        var product = obj.data.productData; if(product){ productData = JSON.stringify(product) }
+
+        db.none('INSERT INTO blogList(shopurl, describe, contenType, productData, createdat)' +
+          'values(${shopUrl}, ${describe}, ${contenType}, ${productData}, ${time})',
+        req.body)
+        .then(function () {
+          res.status(200)
+            .json({
+              status: 'success',
+              message: 'Inserted one Entry'
+            });
+        })
+        .catch(function (err) {
+          return next(err);
         });
-    })
-    .catch(function (err) {
-      return next(err);
-    });
+  });
+  
 }
 
 function updateArticle(req, res, next) {
