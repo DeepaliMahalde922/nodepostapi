@@ -6,9 +6,11 @@ var options = {
 };
 
 var pgp = require('pg-promise')(options);
+
+
 //var connectionString = 'postgres://localhost:5432/articles';
-var connectionString = 'postgres://ojwxoozqcwgcof:105dfd6f38f00ff5d46a3133ab187e785bca59544478910409abf34db0faa54a@ec2-54-204-45-43.compute-1.amazonaws.com/df62aebt480nve';
-//var connectionString = 'postgres://postgres:TechAdmin@localhost/shopify-app-development';
+//var connectionString = 'postgres://ojwxoozqcwgcof:105dfd6f38f00ff5d46a3133ab187e785bca59544478910409abf34db0faa54a@ec2-54-204-45-43.compute-1.amazonaws.com/df62aebt480nve';
+var connectionString = 'postgres://postgres:TechAdmin@localhost/shopify-app-development';
 var db = pgp(connectionString);
 
 function getAllArticle(req, res, next) {
@@ -42,70 +44,39 @@ function getSingleArticle(req, res, next) {
     });
 }
 
-function createArticle(req, res, next) {
+function createArticle(req, res, next) {  
 
-  var obj = JSON.parse(req.body);
-  // console.log(obj);
-   var time = moment();
-   var time_format = time.format('YYYY-MM-DD HH:mm:ss Z');
-   var describe = contenType = productData = shopUrl = '';
-   if(obj.data.describe){ describe = obj.data.describe; }
-   if(obj.data.contenType){ contenType = obj.data.contenType; }
-   if(obj.data.shopUrl){ shopUrl = obj.data.shopUrl; }
-   var product = obj.data.productData; if(product){ productData = JSON.stringify(product) }
-
-
-   if(shopUrl && describe && contenType && productData){
-    const query = db.none('INSERT INTO blogList(shopurl, describe, contenType, productData, resourcePickerOpen, createdat) values($1, $2, $3, $4, $5)',
-    [shopUrl, describe, contenType, productData, 'false', time],
-    function(err,result) {
-        done();
-        if (err) {
-            res.status(302)
-            .json({
-              status: 'success',
-              data: obj,
-              message: 'Inserted one puppy'
-            });
-        }
-        if(result){
-            console.log('Success');
-            res.status(200)
-            .json({
-              status: 'success',
-              data: obj,
-              message: 'Inserted one puppy'
-            });
-        }
+    var obj = req.body;
+     var describe = contenType = productData = shopUrl = '';
+    obj.data.forEach(function(item) {
+        if(item.describe){ describe = item.describe; }
+        if(item.shopUrl){ shopUrl = item.shopUrl; }
+        if(item.contenType){ contenType = JSON.stringify(item.contenType);  }
+        if(item.productData){ productData = JSON.stringify(item.productData) }
     });
-  }else{
-    res.status(400)
-    .json({
-      status: 'success',
-      data: obj,
-      message: 'Inserted one puppy'
-    });
-  }
+    var time = moment();
+    var time_format = time.format('YYYY-MM-DD HH:mm:ss Z'); 
 
-  /* db.none('INSERT INTO blogList(shopurl, describe, contenType, productData, createdat)' +
-      'values(${shopUrl}, ${describe}, ${contenType}, ${productData}, ${productData})',
-    req.body)
-    .then(function () {
-      res.status(200)
+    db.one("insert into bloglist(shopurl, describe, contenType, productData, createdat)" +
+        "values ($1, $2, $3, $4, $5)"
+        +"returning id", [shopUrl, describe, contenType, productData, time])
+    .then(function (data) {
+        res.status(200)
         .json({
           status: 'success',
-          message: 'Inserted one puppy'
+          data: data,
+          message: 'Recivied ONE Entry'
         });
-    })
-    .catch(function (err) {
-      return next(err);
-    }); */
+        
+    }, function (reason) {
+        console.log('Insert into /locations failed for ', reason); // print error;
+        return next(reason);
+    });
+
 }
 
 function updateArticle(req, res, next) {
-  db.none('update pups set name=$1, breed=$2, age=$3, sex=$4 where id=$5',
-    [req.body.name, req.body.breed, parseInt(req.body.age),
-      req.body.sex, parseInt(req.params.id)])
+  db.one('update bloglist set describe=$1 where id=$2',['Update form', 84])
     .then(function () {
       res.status(200)
         .json({

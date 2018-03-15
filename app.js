@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var pug = require('pug');
 var routes = require('./routes/index');
+var http = require('http');
 
 var app = express();
 
@@ -50,7 +51,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status( err.code || 500 )
     .json({
-      status: 'error',
+      status: 'error test',
       message: err
     });
   });
